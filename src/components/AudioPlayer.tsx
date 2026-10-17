@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Music, Pause, Play, Volume2 } from "lucide-react";
-import { motion } from "motion/react";
+import { Pause, Play, Volume2 } from "lucide-react";
 
 interface AudioPlayerProps {
   isPlaying: boolean;
@@ -20,26 +19,15 @@ function EqualizerBars({ isPlaying }: { isPlaying: boolean }) {
   return (
     <div className="flex items-end gap-[2px] h-4 sm:h-5">
       {bars.map((bar, i) => (
-        <motion.div
+        <div
           key={i}
-          className="w-[2.5px] rounded-full bg-brand-accent"
-          animate={
-            isPlaying
-              ? {
-                  height: [bar.height, "4px", bar.height, "8px", bar.height],
-                }
-              : { height: "3px" }
-          }
-          transition={
-            isPlaying
-              ? {
-                  duration: 0.8 + Math.random() * 0.4,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: bar.delay,
-                }
-              : { duration: 0.3 }
-          }
+          className="w-[2.5px] rounded-full bg-[#b8925a] transition-all duration-300"
+          style={{
+            height: isPlaying ? bar.height : "3px",
+            animation: isPlaying
+              ? `pulseGlow 0.8s ease-in-out infinite alternate ${bar.delay}s`
+              : "none",
+          }}
         />
       ))}
     </div>
@@ -97,88 +85,88 @@ export default function AudioPlayer({ isPlaying, onToggle, audioRef }: AudioPlay
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 40, scale: 0.9 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ type: "spring", stiffness: 120, damping: 20, delay: 0.4 }}
+    <div
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
-      className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 backdrop-blur-xl bg-gradient-to-br from-white/95 to-brand-faint/90 shadow-2xl border border-brand-border/50 rounded-2xl overflow-hidden transition-all duration-300"
-      style={{ maxWidth: "calc(100vw - 32px)" }}
+      className="fixed bottom-5 left-5 sm:bottom-6 sm:left-6 z-50 backdrop-blur-xl rounded-2xl overflow-hidden transition-all duration-300 border border-[#b8925a]/40 shadow-2xl"
+      style={{
+        background: "linear-gradient(135deg, rgba(255, 253, 249, 0.95), rgba(246, 236, 216, 0.92))",
+        boxShadow: "0 15px 35px rgba(90, 68, 40, 0.25), 0 4px 10px rgba(90, 68, 40, 0.1)",
+        direction: "rtl",
+      }}
     >
       <div className="p-2.5 sm:p-3 flex items-center gap-2.5 sm:gap-3">
         {/* Play/Pause Button */}
-        <motion.button
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.92 }}
+        <button
+          type="button"
           onClick={onToggle}
-          className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-brand-primary text-brand-bg flex items-center justify-center relative cursor-pointer border-none shadow-md hover:bg-brand-accent transition-colors shrink-0"
-          aria-label={isPlaying ? "Pause music" : "Play music"}
+          className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center relative cursor-pointer border-none shadow-md transition-all duration-300 hover:scale-105 active:scale-95 shrink-0 text-white"
+          style={{
+            background: "linear-gradient(135deg, #c99a5f 0%, #b8925a 50%, #7a5730 100%)",
+          }}
+          aria-label={isPlaying ? "إيقاف الموسيقى" : "تشغيل الموسيقى"}
         >
-          {/* Spinning ring when playing */}
           {isPlaying && (
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-[-3px] rounded-full border border-brand-accent/40 border-t-brand-accent"
-            />
+            <div className="absolute inset-[-3px] rounded-full border border-[#b8925a]/50 border-t-[#d4af37] animate-spin" />
           )}
-          {isPlaying ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" className="ml-0.5" />}
-        </motion.button>
+          {isPlaying ? (
+            <Pause size={16} fill="currentColor" />
+          ) : (
+            <Play size={16} fill="currentColor" className="ml-0.5" />
+          )}
+        </button>
 
-        {/* Song Info & Controls */}
+        {/* Info */}
         <div className={`transition-all duration-300 overflow-hidden ${isExpanded ? "w-44 sm:w-52" : "w-24 sm:w-28"}`}>
           <div className="flex items-center gap-2">
             <EqualizerBars isPlaying={isPlaying} />
-            <div className="min-w-0 flex-1">
-              <div className="text-[8px] uppercase tracking-[0.2em] font-sans font-bold text-brand-secondary">
+            <div className="min-w-0 flex-1 text-right">
+              <div
+                className="text-[9px] uppercase tracking-wider font-bold text-[#a1794a]"
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
+              >
                 {isPlaying ? "شغالة الآن" : "موسيقى الدعوة"}
               </div>
-              <div className="text-xs font-arabic text-brand-primary font-bold truncate">
-                الليل وسماه
+              <div
+                className="text-xs text-[#5c4322] font-bold truncate"
+                style={{ fontFamily: "'Amiri', serif" }}
+              >
+                الليل وسماه 🎵
               </div>
             </div>
           </div>
 
           {/* Progress Bar (Visible when expanded) */}
           {isExpanded && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              transition={{ duration: 0.2 }}
-              className="mt-2"
-            >
+            <div className="mt-2">
               <div
                 ref={progressBarRef}
                 onClick={handleProgressClick}
-                className="w-full h-1.5 bg-brand-border/40 rounded-full cursor-pointer relative overflow-hidden group"
+                className="w-full h-1.5 bg-[#b8925a]/25 rounded-full cursor-pointer relative overflow-hidden"
               >
                 <div
-                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-brand-accent to-brand-primary rounded-full"
+                  className="absolute top-0 right-0 h-full bg-gradient-to-l from-[#b8925a] to-[#7a5730] rounded-full"
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <div className="flex justify-between mt-1">
-                <span className="text-[8px] font-mono text-brand-secondary tabular-nums">
-                  {formatTime(currentTime)}
-                </span>
-                <span className="text-[8px] font-mono text-brand-secondary tabular-nums">
-                  {formatTime(duration)}
-                </span>
+              <div className="flex justify-between mt-1 text-[8px] font-mono text-[#8a6a3d] tabular-nums" dir="ltr">
+                <span>{formatTime(currentTime)}</span>
+                <span>{formatTime(duration)}</span>
               </div>
-            </motion.div>
+            </div>
           )}
         </div>
 
-        {/* Expand toggle on mobile */}
+        {/* Mobile toggle */}
         <button
+          type="button"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="sm:hidden text-brand-secondary hover:text-brand-primary p-1 cursor-pointer bg-transparent border-none"
-          aria-label="Toggle audio player details"
+          className="sm:hidden text-[#8a6a3d] p-1 cursor-pointer bg-transparent border-none"
+          aria-label="Toggle details"
         >
-          <Volume2 size={16} className={isPlaying ? "text-brand-accent" : "text-brand-secondary"} />
+          <Volume2 size={16} className={isPlaying ? "text-[#b8925a]" : "text-[#8a6a3d]"} />
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 }
